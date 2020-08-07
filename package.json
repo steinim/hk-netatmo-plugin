@@ -1,0 +1,18 @@
+{
+    "name": "netatmo-plugin",
+    "version": "0.0.1",
+    "description": "Netatmo værstasjon",
+    "author": "Stein Inge Morisbak",
+    "license": "MIT",
+    "main": "pages/Netatmo.tsx",
+    "repository": "git@github.com:steinim/hk-netatmo-plugin.git",
+    "plugin": {
+        "name": "Netatmo værstasjon",
+        "icon": "",
+        "description": "Koble til din Netatmo værstasjon for å følge temperatur, lydnivå, luftfuktighet, CO2-nivå, regn, vær og vind."
+    },
+    "devDependencies": {},
+    "dependencies": {
+        "react-native-vector-icons": "^7.0.0"
+    }
+}
