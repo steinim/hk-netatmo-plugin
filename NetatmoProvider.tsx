@@ -1,25 +1,57 @@
 import React, { useContext, useMemo, useState, useEffect } from 'react';
-import { NavigationStackProp } from 'react-navigation-stack';
 import { AsyncStorage } from 'react-native';
+import axios from 'axios';
 
 const NetatmoContext = React.createContext({ });
 
 interface Props {
-  navigation?: NavigationStackProp;
   children?: any;
 }
 
+const auth = {
+  client_id: '<secret>',
+  client_secret: '<secret>',
+  username: '',
+  password: '',
+};
+
 export interface Token {
-  accessToken?: string;
-  refreshToken?: string;
-  expiresIn?: number;
-  expires?: Date;
+  access_token?: string;
+  refresh_token?: string;
   scope?: string[];
+  expires_in?: number;
+  expire_in?: number;
 }
+
+// const api = new netatmo(auth);
 
 export const NetatmoProvider = (props: Props) => {
   const [homeState, setHomeState] = useState([]);
   const [token, setToken] = useState({} as Token);
+
+  const getToken = async () => {
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'authorization_code');
+    params.append('client_id', auth.client_id);
+    params.append('client_secret', auth.client_secret);
+    params.append('code', '');
+    params.append('scope', 'read_station');
+    params.append('redirect_uri', '');
+
+    return await axios
+      .post(`https://api.netatmo.net/oauth2/token`, params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+      .then((e) => {
+        setToken(e.data);
+        AsyncStorage.setItem('netatmo-token', JSON.stringify(e.data));
+        return e.data;
+      })
+      .catch((err) => console.log('error', err));
+  };
 
   const homes = () => {
     return homeState;
@@ -37,50 +69,7 @@ export const NetatmoProvider = (props: Props) => {
     setHomeState(temps);
   };
 
-  const handleLogin = async (data: Token) => {
-    try {
-      const expiredDate = new Date();
-      expiredDate.setSeconds(expiredDate.getSeconds() + data.expiresIn);
-      data.expires = expiredDate;
-
-      setToken(data);
-      AsyncStorage.setItem('netatmo-token', JSON.stringify(data));
-      console.log('login token set', data.expires);
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
-  const isLoggedIn = () => {
-    return !!(new Date() < new Date(token.expires));
-  };
-
-  const authToken = () => {
-    // TODO refresh token logic
-    return token.accessToken;
-  };
-
-  const handleLogout = async () => {
-    try {
-      setToken({} as Token);
-      setHomes([]);
-      AsyncStorage.setItem('netatmo-token', JSON.stringify('{}'));
-      AsyncStorage.setItem('homeState', JSON.stringify('[]'));
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
   useEffect(() => {
-    const loadToken = async () => {
-      const data = await AsyncStorage.getItem('netatmo-token');
-      if (!!data) {
-        const t = JSON.parse(data) as Token;
-        setToken(t);
-      }
-    };
-    loadToken();
-
     const loadHomes = async () => {
       const data = await AsyncStorage.getItem('homeState');
       if (!!data) {
@@ -93,14 +82,11 @@ export const NetatmoProvider = (props: Props) => {
 
   const value = useMemo(() => {
     return {
-      handleLogin,
-      handleLogout,
-      isLoggedIn,
-      authToken,
       homes,
       setHomes,
+      getToken,
     };
-  }, [token, homeState]);
+  }, [homeState]);
 
   return (
     <NetatmoContext.Provider value={value}>

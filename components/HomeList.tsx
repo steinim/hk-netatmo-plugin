@@ -9,7 +9,7 @@ import variable from '../../../native-base-theme/variables/material';
 
 export const HomeList = () => {
 
-  const { homes, setHomes, isLoggedIn } = useNetatmo();
+  const { homes, setHomes } = useNetatmo();
   const [shouldRefresh, setShouldRefresh] = useState(0);
   const [fetching, setShouldFetch] = useState(false);
 
@@ -78,9 +78,7 @@ export const HomeList = () => {
   };
 
   useEffect(() => {
-    if (isLoggedIn() !== undefined || isLoggedIn()) {
-      fetchHomes();
-    }
+    fetchHomes();
   }, []);
 
   const styles = StyleSheet.create({
