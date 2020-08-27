@@ -8,7 +8,7 @@
     "repository": "git@github.com:steinim/hk-netatmo-plugin.git",
     "plugin": {
         "name": "Netatmo værstasjon",
-        "icon": "",
+        "icon": "https://www.netatmo.com/v2/images/favicons/favicon-32x32.png",
         "description": "Koble til din Netatmo værstasjon for å følge temperatur, lydnivå, luftfuktighet, CO2-nivå, regn, vær og vind."
     },
     "devDependencies": {},
